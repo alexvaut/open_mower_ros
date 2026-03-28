@@ -598,7 +598,7 @@ void MowingBehavior::command_s2() {
 }
 
 bool MowingBehavior::redirect_joystick() {
-  return false;
+  return paused;
 }
 
 uint8_t MowingBehavior::get_sub_state() {
