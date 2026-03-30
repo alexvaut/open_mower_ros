@@ -403,6 +403,7 @@ bool MowingBehavior::execute_mowing_plan() {
           ROS_WARN_STREAM("MowingBehavior: (FIRST POINT) - Attempt " << first_point_attempt_counter << " / "
                                                                      << config.max_first_point_attempts
                                                                      << " Making a little pause ...");
+          requestPause();
           paused = true;
           update_actions();
         } else {
@@ -417,6 +418,7 @@ bool MowingBehavior::execute_mowing_plan() {
             currentMowingPathIndex++;
             first_point_trim_counter++;
             first_point_attempt_counter = 0;  // give it another <config.max_first_point_attempts> attempts
+            requestPause();
             paused = true;
             update_actions();
           } else {
@@ -545,6 +547,7 @@ bool MowingBehavior::execute_mowing_plan() {
           if (currentMowingPathIndex == 0) currentMowingPathIndex++;
           if (!requested_pause_flag) {
             ROS_INFO_STREAM("MowingBehavior: (MOW) PAUSED due to MBF Error at " << currentMowingPathIndex);
+            requestPause();
             paused = true;
             update_actions();
           }

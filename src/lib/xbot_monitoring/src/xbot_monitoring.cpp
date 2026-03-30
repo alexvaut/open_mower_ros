@@ -60,6 +60,7 @@ std::mutex mqtt_callback_mutex;
 
 // Publisher for cmd_vel and commands
 ros::Publisher cmd_vel_pub;
+ros::Publisher cmd_vel_override_pub;
 ros::Publisher action_pub;
 ros::Publisher rpc_request_pub;
 
@@ -112,6 +113,16 @@ public:
                 cmd_vel_pub.publish(t);
             } catch (const json::exception &e) {
                 ROS_ERROR_STREAM("Error decoding teleop bson: " << e.what());
+            }
+        } else if(ptr->get_topic() == this->mqtt_topic_prefix + "teleop_override") {
+            try {
+                json json = json::from_bson(ptr->get_payload().begin(), ptr->get_payload().end());
+                geometry_msgs::Twist t;
+                t.linear.x = json["vx"];
+                t.angular.z = json["vz"];
+                cmd_vel_override_pub.publish(t);
+            } catch (const json::exception &e) {
+                ROS_ERROR_STREAM("Error decoding teleop_override bson: " << e.what());
             }
         } else if(ptr->get_topic() == this->mqtt_topic_prefix + "action") {
             ROS_INFO_STREAM("Got action: " + ptr->get_payload());
@@ -712,6 +723,7 @@ int main(int argc, char **argv) {
     ros::Subscriber mapOverlaySubscriber = n->subscribe("xbot_monitoring/map_overlay", 10, map_overlay_callback);
 
     cmd_vel_pub = n->advertise<geometry_msgs::Twist>("xbot_monitoring/remote_cmd_vel", 1);
+    cmd_vel_override_pub = n->advertise<geometry_msgs::Twist>("xbot_monitoring/override_cmd_vel", 1);
     action_pub = n->advertise<std_msgs::String>("xbot/action", 1);
 
     rpc_request_pub = n->advertise<xbot_rpc::RpcRequest>(xbot_rpc::TOPIC_REQUEST, 100);

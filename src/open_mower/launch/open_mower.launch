@@ -23,6 +23,7 @@
     <node pkg="xbot_monitoring" type="xbot_monitoring" name="xbot_monitoring" output="screen" respawn="true"
           respawn_delay="10">
         <remap from="/xbot_monitoring/remote_cmd_vel" to="/joy_vel"/>
+        <remap from="/xbot_monitoring/override_cmd_vel" to="/override_vel"/>
     </node>
 
     <node pkg="xbot_monitoring" type="heatmap_generator" name="heatmap_generator" output="screen" respawn="true"
