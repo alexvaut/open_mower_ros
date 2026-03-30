@@ -93,6 +93,7 @@ class MqttCallback : public mqtt::callback {
         // END: Deprecated code (1/2)
 
         client_->subscribe(this->mqtt_topic_prefix + "teleop", 0);
+        client_->subscribe(this->mqtt_topic_prefix + "teleop_override", 0);
         client_->subscribe(this->mqtt_topic_prefix + "command", 0);
         client_->subscribe(this->mqtt_topic_prefix + "action", 0);
         client_->subscribe(this->mqtt_topic_prefix + "rpc/request", 0);
