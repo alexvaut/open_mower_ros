@@ -190,6 +190,10 @@ add_executable(monitoring src/monitoring/monitoring.cpp)
 add_dependencies(monitoring ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(monitoring ${catkin_LIBRARIES})
 
+add_executable(blade_speed_adapter src/blade_speed_adapter/blade_speed_adapter.cpp)
+add_dependencies(blade_speed_adapter ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(blade_speed_adapter ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
@@ -245,3 +249,9 @@ target_link_libraries(monitoring ${catkin_LIBRARIES})
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/sim_startup.test)
+  add_rostest(test/blade_speed_adapter.test)
+endif()
