@@ -9,6 +9,7 @@
         <!-- Comms v1 -->
         <node pkg="mower_comms_v1" type="mower_comms_v1" name="ll" unless="$(optenv OM_NO_COMMS False)"
                 output="screen" respawn="true" respawn_delay="10">
+            <param name="stall_breaker/enabled" value="true"/>
         </node>
         <!-- GPS driver only for v1 builds -->
         <node pkg="xbot_driver_gps" type="driver_gps_node" name="gps"
