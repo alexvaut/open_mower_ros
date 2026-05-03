@@ -35,6 +35,7 @@
 #include "mower_map/GetDockingPointSrv.h"
 #include "mower_map/GetMowingAreaSrv.h"
 #include "mower_map/SetDockingPointSrv.h"
+#include "mower_map/SetJsonMapSrv.h"
 #include "mower_map/SetNavPointSrv.h"
 
 // JSON for map storage
@@ -60,6 +61,7 @@ const std::string LEGACY_MAP_FILE = "map.bag";
 // Forward declarations
 void saveMapToFile();
 void buildMap();
+bool applyMapJson(const json& map_json, std::string& errMsg);
 
 // Struct definitions for JSON serialization
 struct Point {
@@ -189,14 +191,11 @@ xbot_rpc::RpcProvider rpc_provider("mower_map_service", {{
     if (!params.is_array() || params.size() != 1) {
       throw xbot_rpc::RpcException(xbot_rpc::RpcError::ERROR_INVALID_PARAMS, "Missing map parameter");
     }
-    try {
-      map_data = params[0];
-    } catch (const std::exception& e) {
-      throw xbot_rpc::RpcException(xbot_rpc::RpcError::ERROR_INVALID_PARAMS, "Invalid map: " + std::string(e.what()));
+    std::string err;
+    if (!applyMapJson(params[0], err)) {
+      throw xbot_rpc::RpcException(xbot_rpc::RpcError::ERROR_INVALID_PARAMS, err);
     }
-    saveMapToFile();
     ROS_INFO_STREAM("Loaded " << map_data.areas.size() << " areas via RPC and saved to file");
-    buildMap();
     return "Successfully stored map (" + std::to_string(map_data.areas.size()) + " areas)";
   }),
 }});
@@ -640,6 +639,40 @@ bool clearMap(mower_map::ClearMapSrvRequest& req, mower_map::ClearMapSrvResponse
   return true;
 }
 
+bool applyMapJson(const json& map_json, std::string& errMsg) {
+  try {
+    map_data = map_json;
+  } catch (const std::exception& e) {
+    errMsg = "Invalid map: " + std::string(e.what());
+    return false;
+  }
+  saveMapToFile();
+  buildMap();
+  return true;
+}
+
+bool setJsonMap(mower_map::SetJsonMapSrvRequest& req, mower_map::SetJsonMapSrvResponse& res) {
+  ROS_INFO_STREAM("Got setJsonMap call");
+  json map_json;
+  try {
+    map_json = json::parse(req.json);
+  } catch (const std::exception& e) {
+    res.success = false;
+    res.message = "Invalid JSON: " + std::string(e.what());
+    return true;
+  }
+  std::string err;
+  if (!applyMapJson(map_json, err)) {
+    res.success = false;
+    res.message = err;
+    return true;
+  }
+  ROS_INFO_STREAM("Loaded " << map_data.areas.size() << " areas via set_json_map service and saved to file");
+  res.success = true;
+  res.message = "Successfully stored map (" + std::to_string(map_data.areas.size()) + " areas)";
+  return true;
+}
+
 /**
  * Helper function to convert legacy map areas from bag file
  * @param bag The rosbag to read from
@@ -751,6 +784,7 @@ int main(int argc, char** argv) {
   ros::ServiceServer set_nav_point_srv = n.advertiseService("mower_map_service/set_nav_point", setNavPoint);
   ros::ServiceServer clear_nav_point_srv = n.advertiseService("mower_map_service/clear_nav_point", clearNavPoint);
   ros::ServiceServer clear_map_srv = n.advertiseService("mower_map_service/clear_map", clearMap);
+  ros::ServiceServer set_json_map_srv = n.advertiseService("mower_map_service/set_json_map", setJsonMap);
 
   ros::spin();
   return 0;

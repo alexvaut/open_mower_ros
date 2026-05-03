@@ -70,6 +70,7 @@ add_service_files(
         GetDockingPointSrv.srv
         GetMowingAreaSrv.srv
         SetDockingPointSrv.srv
+        SetJsonMapSrv.srv
         ClearNavPointSrv.srv
         SetNavPointSrv.srv
         ClearMapSrv.srv
