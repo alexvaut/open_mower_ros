@@ -15,14 +15,15 @@ class PowerServiceInterface : public PowerServiceInterfaceBase {
   PowerServiceInterface(uint16_t service_id, const xbot::serviceif::Context& ctx,
                         const ros::Publisher& status_publisher, float battery_full_voltage, float battery_empty_voltage,
                         float battery_critical_voltage, float battery_critical_high_voltage,
-                        float battery_charge_current)
+                        float battery_charge_current, float system_current)
       : PowerServiceInterfaceBase(service_id, ctx),
         status_publisher_(status_publisher),
         battery_full_voltage_(battery_full_voltage),
         battery_empty_voltage_(battery_empty_voltage),
         battery_critical_voltage_(battery_critical_voltage),
         battery_critical_high_voltage_(battery_critical_high_voltage),
-        battery_charge_current_(battery_charge_current) {
+        battery_charge_current_(battery_charge_current),
+        system_current_(system_current) {
   }
 
  protected:
@@ -31,6 +32,12 @@ class PowerServiceInterface : public PowerServiceInterfaceBase {
   void OnBatteryVoltageChanged(const float& new_value) override;
   void OnChargingStatusChanged(const char* new_value, uint32_t length) override;
   void OnChargerEnabledChanged(const uint8_t& new_value) override;
+  void OnBatteryPercentageChanged(const float& new_value) override;
+  void OnChargeVoltageADCChanged(const float& new_value) override;
+  void OnBatteryVoltageADCChanged(const float& new_value) override;
+  void OnDCDCInputCurrentChanged(const float& new_value) override;
+  void OnChargerInputCurrentChanged(const float& new_value) override;
+
   bool OnConfigurationRequested(uint16_t service_id) override;
 
  private:
@@ -44,6 +51,7 @@ class PowerServiceInterface : public PowerServiceInterfaceBase {
   float battery_critical_voltage_;
   float battery_critical_high_voltage_;
   float battery_charge_current_;
+  float system_current_;
 };
 
 #endif  // POWERSERVICEINTERFACE_H

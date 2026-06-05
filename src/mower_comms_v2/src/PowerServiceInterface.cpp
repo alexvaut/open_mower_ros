@@ -5,7 +5,7 @@
 #include "PowerServiceInterface.h"
 
 void PowerServiceInterface::OnChargeVoltageChanged(const float& new_value) {
-  power_msg_.v_charge = new_value;
+  power_msg_.charge_voltage_chg = new_value;
 }
 
 void PowerServiceInterface::OnChargeCurrentChanged(const float& new_value) {
@@ -13,7 +13,7 @@ void PowerServiceInterface::OnChargeCurrentChanged(const float& new_value) {
 }
 
 void PowerServiceInterface::OnBatteryVoltageChanged(const float& new_value) {
-  power_msg_.v_battery = new_value;
+  power_msg_.battery_voltage_chg = new_value;
 }
 
 void PowerServiceInterface::OnChargingStatusChanged(const char* new_value, uint32_t length) {
@@ -23,6 +23,27 @@ void PowerServiceInterface::OnChargingStatusChanged(const char* new_value, uint3
 void PowerServiceInterface::OnChargerEnabledChanged(const uint8_t& new_value) {
   power_msg_.charger_enabled = new_value;
 }
+
+void PowerServiceInterface::OnBatteryPercentageChanged(const float& new_value) {
+  power_msg_.battery_pct = new_value;
+}
+
+void PowerServiceInterface::OnChargeVoltageADCChanged(const float& new_value) {
+  power_msg_.charge_voltage_adc = new_value;
+}
+
+void PowerServiceInterface::OnBatteryVoltageADCChanged(const float& new_value) {
+  power_msg_.battery_voltage_adc = new_value;
+}
+
+void PowerServiceInterface::OnDCDCInputCurrentChanged(const float& new_value) {
+  power_msg_.dcdc_input_current = new_value;
+}
+
+void PowerServiceInterface::OnChargerInputCurrentChanged(const float& new_value) {
+  power_msg_.charger_input_current = new_value;
+}
+
 bool PowerServiceInterface::OnConfigurationRequested(uint16_t service_id) {
   StartTransaction(true);
   SetRegisterBatteryFullVoltage(battery_full_voltage_);
@@ -30,6 +51,7 @@ bool PowerServiceInterface::OnConfigurationRequested(uint16_t service_id) {
   SetRegisterCriticalBatteryLowVoltage(battery_critical_voltage_);
   SetRegisterCriticalBatteryHighVoltage(battery_critical_high_voltage_);
   SetRegisterChargeCurrent(battery_charge_current_);
+  SetRegisterSystemCurrent(system_current_);
   CommitTransaction();
   return true;
 }
